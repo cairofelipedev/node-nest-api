@@ -8,6 +8,7 @@ import { StoresController } from './stores.controller';
 })
 export class StoresModule {
   id: number;
-  username: string;
-  email: string;
+  name: string;
+  description: string;
+  type: number;
 }
