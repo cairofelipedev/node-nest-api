@@ -1,46 +1,33 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
-import { StoresModule  } from './stores.module';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe } from '@nestjs/common';
+import { StoreService } from '../store.service';
+import { Prisma } from '@prisma/client';
 
 @Controller('stores')
 export class StoresController {
-  private stores: StoresModule [] = [];
+  constructor(private readonly storeService: StoreService) {}
 
   @Get()
-  findAll(): StoresModule [] {
-    return this.stores;
+  async findAll(): Promise<StoresModule[]> {
+    return this.storeService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): StoresModule  {
-    return this.stores.find(store => store.id === +id);
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<StoresModule> {
+    return this.storeService.findOne(id);
   }
 
   @Post()
-  create(@Body() store: StoresModule ): StoresModule  {
-    store.id = this.stores.length + 1;
-    this.stores.push(store);
-    return store;
+  async create(@Body() store: Prisma.StoreCreateInput): Promise<StoresModule> {
+    return this.storeService.create(store);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatedstore: StoresModule ): StoresModule  {
-    const index = this.stores.findIndex(store => store.id === +id);
-    if (index !== -1) {
-      this.stores[index] = { ...this.stores[index], ...updatedstore };
-      return this.stores[index];
-    } else {
-      throw new Error('store not found');
-    }
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updatedStore: Prisma.StoreCreateInput): Promise<StoresModule> {
+    return this.storeService.update(id, updatedStore);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): string {
-    const index = this.stores.findIndex(store => store.id === +id);
-    if (index !== -1) {
-      this.stores.splice(index, 1);
-      return 'store deleted successfully';
-    } else {
-      throw new Error('store not found');
-    }
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    return this.storeService.delete(id);
   }
 }
